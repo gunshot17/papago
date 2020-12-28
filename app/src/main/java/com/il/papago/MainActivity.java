@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Todo 나중에 번역 탭으로 옮겨놔야됨  ,  jsonobject밑에도 api 데이터 가져올거 작성
         StringRequest request = new StringRequest(
                 Request.Method.POST,
                 baseUrl,
