@@ -16,9 +16,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,23 +75,31 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Todo 나중에 번역 탭으로 옮겨놔야됨  ,  jsonobject밑에도 api 데이터 가져올거 작성
-        StringRequest request = new StringRequest(
-                Request.Method.POST,
-                baseUrl,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.i("AAA", response);
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            // translatedText 항목을 뽑아 올수 있습니다.
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+    }
+
+    public void getNetworkData(String url){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.i("AAA", response.toString());
+                try {
+                    JSONArray message = response.getJSONArray("message");
+                    for(int i = 0; i<message.length();i++){
+                        JSONObject jsonObject = message.getJSONObject(i);
+//     Todo                   JSONObject
                     }
-                },
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
@@ -111,15 +121,14 @@ public class MainActivity extends AppCompatActivity {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("source", "ko");
-                params.put("target", "zh-CN");
+                params.put("target", "en");
                 params.put("text", "안녕하세요? 만나서 반갑습니다. 잘 지내시죠?");
                 return params;
             }
         };
 
         // 실제로 네트워크로 API 호출 ( 요청 )
-        requestQueue.add(request);
-
+        requestQueue.add(jsonObjectRequest);
     }
 
     }
