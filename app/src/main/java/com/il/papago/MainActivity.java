@@ -90,7 +90,11 @@ public class MainActivity extends AppCompatActivity {
                     JSONArray message = response.getJSONArray("message");
                     for(int i = 0; i<message.length();i++){
                         JSONObject jsonObject = message.getJSONObject(i);
-//     Todo                   JSONObject
+                        JSONObject result = jsonObject.getJSONObject("result");
+                        String translatedText = result.getString("translatedText");
+
+                        Transtext transtext = new Transtext(translatedText);
+
                     }
 
 
