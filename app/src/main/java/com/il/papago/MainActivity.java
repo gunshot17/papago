@@ -35,9 +35,12 @@ public class MainActivity extends AppCompatActivity {
     EditText translatedtext;
     Spinner spinner;
     Button button;
+    int arrayitem;
+
 
 
     ArrayList<Transtext> transtextArrayList = new ArrayList<>();
+
 
     RequestQueue requestQueue;
     String baseUrl = "https://openapi.naver.com/v1/papago/n2mt";
@@ -57,15 +60,24 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        ArrayAdapter monthAdapter = ArrayAdapter.createFromResource(this, R.array.translate, android.R.layout.simple_spinner_dropdown_item);
 
-        monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(monthAdapter);
+        ArrayAdapter languageAdapter = ArrayAdapter.createFromResource(this, R.array.translate, android.R.layout.simple_spinner_dropdown_item);
+
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(languageAdapter);
 
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                arrayitem = ((int) parent.getItemIdAtPosition(position));
+
+                Log.i("AAA"," "+arrayitem);
+
+
+
+
+
             } //이 오버라이드 메소드에서 position은 몇번째 값이 클릭됬는지 알 수 있습니다.
             //getItemAtPosition(position)를 통해서 해당 값을 받아올수있습니다.
 
@@ -76,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
 
                 requestQueue = Volley.newRequestQueue(MainActivity.this);
 
@@ -127,7 +141,17 @@ public class MainActivity extends AppCompatActivity {
                         Map<String, String> params = new HashMap<String, String>();
                         String translated = translatedkorean.getText().toString();
                         params.put("source", "ko");
-                        params.put("target", "en");
+
+
+                        if(arrayitem==1){
+                            params.put("target", "en");
+                        }else if(arrayitem==2){
+                            params.put("target", "ja");
+                        }else if(arrayitem==3){
+                            params.put("target", "zh-TW");
+                        }else if(arrayitem==4){
+                            params.put("target", "zh-CN");
+                        }
                         params.put("text",translated);
                         return params;
                     }
@@ -144,64 +168,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    public void getNetworkData(String url){
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-//                Request.Method.POST,
-//                baseUrl,
-//                null, new Response.Listener<JSONObject>() {
-//            @Override
-//            public void onResponse(JSONObject response) {
-//                Log.i("AAA", response.toString());
-//                try {
-//                    JSONArray message = response.getJSONArray("message");
-//                    for(int i = 0; i<message.length();i++){
-//                        JSONObject jsonObject = message.getJSONObject(i);
-//                        JSONObject result = jsonObject.getJSONObject("result");
-//                        String translatedText = result.getString("translatedText");
-//
-//                        Transtext transtext = new Transtext(translatedText);
-//
-//
-//
-//
-//                    }
-//
-//
-//
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Log.i("AAA", error.toString());
-//                    }
-//                }
-//        ){
-//            // 네이버 API의 헤더 셋팅 부분을 여기에 작성한다.
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-//                params.put("X-Naver-Client-Id", clientId);
-//                params.put("X-Naver-Client-Secret", clientSecret);
-//                return params;
-//            }
-//            // 네이버에 요청할 파라미터를 셋팅한다.
-//            @Override
-//            protected Map<String, String> getParams() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("source", "ko");
-//                params.put("target", "en");
-//                params.put("text", "안녕하세요? 만나서 반갑습니다. 잘 지내시죠?");
-//                return params;
-//            }
-//        };
-//
-//        // 실제로 네트워크로 API 호출 ( 요청 )
-//        requestQueue.add(jsonObjectRequest);
-//    }
 
     }
