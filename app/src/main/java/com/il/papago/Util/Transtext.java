@@ -1,4 +1,4 @@
-package com.il.papago;
+package com.il.papago.Util;
 
 public class Transtext {
 
