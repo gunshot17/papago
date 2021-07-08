@@ -1,2 +1,4 @@
+include ':json-simple-1.1.1'
+include ':naveridlogin_android_sdk_4.2.6'
 include ':app'
 rootProject.name = "Papago"

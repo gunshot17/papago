@@ -8,6 +8,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +30,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
+import com.il.papago.Util.Translated;
 import com.il.papago.Util.Transtext;
+import com.il.papago.api.NetworkClient;
+import com.il.papago.api.PostApi;
+import com.il.papago.model.Post;
+import com.il.papago.model.UserRes;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,26 +44,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Retrofit;
+
 public class MainActivity extends AppCompatActivity {
 
     EditText translatedkorean;
-    EditText translatedtext;
+    EditText translatedthing;
     Spinner spinner;
     Button button;
     int arrayitem;
+
 
     private DrawerLayout mDrawerLayout;
     private Context context = this;
 
 
+    Data d = new Data();
+
+
+
     ArrayList<Transtext> transtextArrayList = new ArrayList<>();
+    ArrayList<Translated> translatedArrayList = new ArrayList<>();
 
 
     RequestQueue requestQueue;
     String baseUrl = "https://openapi.naver.com/v1/papago/n2mt";
 
-    String clientId = "7LR2DglLDUWXdP3x0iVX";
-    String clientSecret = "Pg9qw9moy4";
+    String clientId = BuildConfig.clientId;
+    String clientSecret = BuildConfig.clientSecret;
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -66,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         spinner = findViewById(R.id.spinner);
         translatedkorean = findViewById(R.id.translatedkorean);
-        translatedtext = findViewById(R.id.translatedtext);
+        translatedthing = findViewById(R.id.translatedthing);
         button = findViewById(R.id.button);
 
 
@@ -75,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false); // 기존 title 지우기
-        actionBar.setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼 만들기
+        actionBar.setDisplayHomeAsUpEnabled(true); //  버튼 만들기
         actionBar.setHomeAsUpIndicator(R.drawable.hamburger);
 
 
@@ -99,8 +116,11 @@ public class MainActivity extends AppCompatActivity {
                 int id = menuItem.getItemId();
                 String title = menuItem.getTitle().toString();
 
-                if (id == R.id.account) {
-                    Toast.makeText(context, title + ": 계정 정보를 확인합니다.", Toast.LENGTH_SHORT).show();
+                if (id == R.id.login) {
+                    Toast.makeText(context, title + ": 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+
+                    Intent i = new Intent(MainActivity.this,LoginActivity.class);
+                    startActivity(i);
                 } else if (id == R.id.setting) {
                     Toast.makeText(context, title + ": 설정 정보를 확인합니다.", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.logout) {
@@ -132,10 +152,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
-                requestQueue = Volley.newRequestQueue(MainActivity.this);
-
-                StringRequest request = new StringRequest(
+                 requestQueue = Volley.newRequestQueue(MainActivity.this);
+                 StringRequest request = new StringRequest(
                         Request.Method.POST,
                         baseUrl,
                         new Response.Listener<String>() {
@@ -143,18 +161,24 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(String response) {
                                 Log.i("AAA", response);
                                 try {
+
+
                                     JSONObject jsonObject = new JSONObject(response);
                                     JSONObject message = jsonObject.getJSONObject("message");
                                     JSONObject result = message.getJSONObject("result");
                                     String Text = result.getString("translatedText");
-
-
-                                    Transtext transtext = new Transtext(Text);
-                                    transtextArrayList.add(transtext);
-
                                     Log.i("text", Text);
 
-                                    translatedtext.setText(Text);
+
+                                    translatedthing.setText(Text);
+                                    Transtext transtext = new Transtext(Text);
+                                    transtextArrayList.add(transtext);
+                                    String aa = transtext.getText();
+                                    Log.i("BBB","aa :"+aa);
+                                    d.x = aa;
+
+
+
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -167,8 +191,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.i("AAA", error.toString());
                             }
                         }
-                ) {
-                    // 네이버 API의 헤더 셋팅 부분을 여기에 작성한다.
+                ) {// 네이버 API의 헤더 셋팅 부분을 여기에 작성한다.
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> params = new HashMap<String, String>();
@@ -182,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     protected Map<String, String> getParams() throws AuthFailureError {
                         Map<String, String> params = new HashMap<String, String>();
-                        String translated = translatedkorean.getText().toString();
+                        String translatedkor = translatedkorean.getText().toString();
                         params.put("source", "ko");
 
 
@@ -195,15 +218,39 @@ public class MainActivity extends AppCompatActivity {
                         } else if (arrayitem == 4) {
                             params.put("target", "zh-CN");
                         }
-                        params.put("text", translated);
+                        params.put("text", translatedkor);
+
+                        Translated translated = new Translated(translatedkor);
+                        translatedArrayList.add(translated);
+                        String AA = translated.getTranslatedkor();
+
+
+                            Log.i("BBB", "list :"+translatedArrayList.size());
+                            Log.i("BBB", "AA :"+AA);
+
+
+
+
                         return params;
+
                     }
+
+
                 };
+
+                Data d2 = copy(d);
+
+                Log.i("DDD","translated :"+ d2.x);
+
+
 
                 // 실제로 네트워크로 API 호출 ( 요청 )
                 requestQueue.add(request);
-            }
 
+
+
+
+            }
 
         });
 
@@ -213,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home: { // 뒤로가기 버튼 눌렀을 때
+            case android.R.id.home: {
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
 //     작동할 내용 넣기  ex) 버튼 누르기
@@ -223,5 +270,23 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-}
+
+
+    public Data copy(Data d){
+        Data tmp = new Data();
+        tmp.x = d.x;
+        return tmp;
+
+    }
+
+
+
+    class Data{
+        String x;
+    }
+
+
+
+
+    }
 

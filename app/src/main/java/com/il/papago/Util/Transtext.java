@@ -2,21 +2,21 @@ package com.il.papago.Util;
 
 public class Transtext {
 
-    String translatedText;
+    String Text;
 
     public Transtext(){
 
     }
 
-    public Transtext(String translatedText) {
-        this.translatedText = translatedText;
+    public Transtext(String Text) {
+        this.Text = Text;
     }
 
-    public String getTranslatedText() {
-        return translatedText;
+    public String getText() {
+        return Text;
     }
 
-    public void setTranslatedText(String translatedText) {
-        this.translatedText = translatedText;
+    public void setText(String Text) {
+        this.Text = Text;
     }
 }

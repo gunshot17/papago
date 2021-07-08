@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+//properties관련
+
+def securePropertiesFile = rootProject.file("secure.properties")
+def secureProperties = new Properties()
+secureProperties.load(new FileInputStream(securePropertiesFile))
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -12,6 +18,18 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        resValue "string", "clientId",secureProperties["clientId"]
+        resValue "string", "clientSecret",secureProperties["clientSecret"]
+        resValue "string", "OAUTH_CLIENT_ID",secureProperties["OAUTH_CLIENT_ID"]
+        resValue "string", "OAUTH_CLIENT_SECRET",secureProperties["OAUTH_CLIENT_SECRET"]
+        resValue "string", "OAUTH_CLIENT_NAME",secureProperties["OAUTH_CLIENT_NAME"]
+
+        buildConfigField("String", "clientId", secureProperties['clientId'])
+        buildConfigField("String", "clientSecret", secureProperties['clientSecret'])
+        buildConfigField("String", "OAUTH_CLIENT_ID", secureProperties['OAUTH_CLIENT_ID'])
+        buildConfigField("String", "OAUTH_CLIENT_SECRET", secureProperties['OAUTH_CLIENT_SECRET'])
+        buildConfigField("String", "OAUTH_CLIENT_NAME", secureProperties['OAUTH_CLIENT_NAME'])
     }
 
     buildTypes {
@@ -20,16 +38,56 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    // 커스텀 ui? 쓸때 넣어야됨 ( naver로그인)
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
+
+
+
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+//네비게이션바?
+    implementation 'androidx.navigation:navigation-fragment:2.3.3'
+    implementation 'androidx.navigation:navigation-ui:2.3.3'
 
     implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
+
+// 네이버 로그인 api
+//    implementation ('com.naver.nid:naveridlogin-android-sdk:4.2.6')
+
+    implementation project(path: ':naveridlogin_android_sdk_4.2.6')
+
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
+    implementation 'androidx.browser:browser:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+
+    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
+
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+
+
+
 }
