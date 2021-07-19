@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private Context context = this;
 
 
-    Data d = new Data();
 
 
 
@@ -152,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
+
                  requestQueue = Volley.newRequestQueue(MainActivity.this);
                  StringRequest request = new StringRequest(
                         Request.Method.POST,
@@ -171,11 +172,14 @@ public class MainActivity extends AppCompatActivity {
 
 
                                     translatedthing.setText(Text);
-                                    Transtext transtext = new Transtext(Text);
-                                    transtextArrayList.add(transtext);
-                                    String aa = transtext.getText();
-                                    Log.i("BBB","aa :"+aa);
-                                    d.x = aa;
+
+
+
+                                    SharedPreferences tet = getSharedPreferences("origintet",MODE_PRIVATE);
+                                    String origintext = tet.getString("origintet",null);
+
+
+                                    Log.i("DDD","text :"+origintext);
 
 
 
@@ -220,13 +224,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                         params.put("text", translatedkor);
 
-                        Translated translated = new Translated(translatedkor);
-                        translatedArrayList.add(translated);
-                        String AA = translated.getTranslatedkor();
 
 
-                            Log.i("BBB", "list :"+translatedArrayList.size());
-                            Log.i("BBB", "AA :"+AA);
+                        SharedPreferences tet = getSharedPreferences("origintet",MODE_PRIVATE);
+                        SharedPreferences.Editor editor = tet.edit();
+                        editor.putString("origintet",translatedkor);
+                        editor.apply();
 
 
 
@@ -238,10 +241,6 @@ public class MainActivity extends AppCompatActivity {
 
                 };
 
-                Data d2 = copy(d);
-
-                Log.i("DDD","translated :"+ d2.x);
-
 
 
                 // 실제로 네트워크로 API 호출 ( 요청 )
@@ -249,8 +248,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
             }
+
+
 
         });
 
@@ -271,19 +271,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    public Data copy(Data d){
-        Data tmp = new Data();
-        tmp.x = d.x;
-        return tmp;
-
-    }
-
-
-
-    class Data{
-        String x;
-    }
 
 
 
