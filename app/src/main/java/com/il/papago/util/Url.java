@@ -1,6 +1,6 @@
-package com.il.papago;
+package com.il.papago.util;
 
-public class Util_Url {
+public class Url {
 
 
     public  static final String BASEURL = "http://papago-env.eba-pydqzm8m.ap-northeast-2.elasticbeanstalk.com/";

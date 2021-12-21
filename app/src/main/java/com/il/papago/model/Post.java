@@ -3,20 +3,27 @@ package com.il.papago.model;
 public class Post {
 
 
+    private int id;
     private String origintext;
-    private String translatedtext;
+    private String Text;
 
-    public Post(String origintext, String translatedtext) {
+    public Post(String origintext, String Text) {
 
         this.origintext = origintext;
-        this.translatedtext = translatedtext;
+        this.Text = Text;
 
     }
     public Post(){
 
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getOrigintext() {
         return origintext;
@@ -26,12 +33,12 @@ public class Post {
         this.origintext = origintext;
     }
 
-    public String getTranslatedtext() {
-        return translatedtext;
+    public String getText() {
+        return Text;
     }
 
-    public void setTranslatedtext(String translatedtext) {
-        this.translatedtext = translatedtext;
+    public void setText(String Text) {
+        this.Text = Text;
     }
 
 

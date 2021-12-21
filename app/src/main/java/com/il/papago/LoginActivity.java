@@ -14,10 +14,9 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.il.papago.api.Naver_UserApi;
+import com.il.papago.util.Url;
 import com.il.papago.api.NetworkClient;
 import com.il.papago.api.UserApi;
-import com.il.papago.model.Naver_UserReq;
 import com.il.papago.model.UserReq;
 import com.il.papago.model.UserRes;
 import com.nhn.android.naverlogin.OAuthLogin;
@@ -119,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(Call<UserRes> call, Response<UserRes> response) {
                         String token = response.body().getToken();
 
-                        SharedPreferences sp = getSharedPreferences(Util_Url.PREFERENCES_NAME,MODE_PRIVATE);
+                        SharedPreferences sp = getSharedPreferences(Url.PREFERENCES_NAME,MODE_PRIVATE);
                         SharedPreferences.Editor editor = sp.edit();
                         editor.putString("token",token);
                         editor.apply();

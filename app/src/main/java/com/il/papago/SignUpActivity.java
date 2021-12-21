@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.il.papago.util.Url;
 import com.il.papago.api.NetworkClient;
 import com.il.papago.api.UserApi;
 import com.il.papago.model.UserReq;
@@ -89,7 +90,7 @@ public class SignUpActivity extends AppCompatActivity {
                             String token = response.body().getToken();
                             Log.i("AAA", "success : " + success + ", token : "+token);
 
-                            SharedPreferences sp = getSharedPreferences(Util_Url.PREFERENCES_NAME,
+                            SharedPreferences sp = getSharedPreferences(Url.PREFERENCES_NAME,
                                     MODE_PRIVATE);
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putString("token", token);
