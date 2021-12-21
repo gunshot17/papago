@@ -13,8 +13,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,15 +30,22 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
-import com.il.papago.data.DatabaseHandler;
+import com.il.papago.Util.Translated;
+import com.il.papago.Util.Transtext;
+import com.il.papago.api.NetworkClient;
+import com.il.papago.api.PostApi;
 import com.il.papago.model.Post;
-import com.il.papago.util.darkModeUtil.ThemeUtil;
+import com.il.papago.model.UserRes;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,17 +56,16 @@ public class MainActivity extends AppCompatActivity {
     int arrayitem;
 
 
-
-    Post post;
-    DatabaseHandler dh;
-
     private DrawerLayout mDrawerLayout;
     private Context context = this;
 
 
-    String themeColor;
+    Data d = new Data();
 
 
+
+    ArrayList<Transtext> transtextArrayList = new ArrayList<>();
+    ArrayList<Translated> translatedArrayList = new ArrayList<>();
 
 
     RequestQueue requestQueue;
@@ -82,20 +86,15 @@ public class MainActivity extends AppCompatActivity {
         translatedthing = findViewById(R.id.translatedthing);
         button = findViewById(R.id.button);
 
-        dh = new DatabaseHandler(MainActivity.this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-//        actionBar.setDisplayShowCustomEnabled(true); // 커스텀 가능하게 라는데 작동 확인해야됨 12.03
         actionBar.setDisplayShowTitleEnabled(false); // 기존 title 지우기
         actionBar.setDisplayHomeAsUpEnabled(true); //  버튼 만들기
         actionBar.setHomeAsUpIndicator(R.drawable.hamburger);
 
-
-        themeColor = ThemeUtil.modLoad(getApplicationContext());
-        ThemeUtil.applyTheme(themeColor);
 
 
 
@@ -124,9 +123,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(i);
                 } else if (id == R.id.setting) {
                     Toast.makeText(context, title + ": 설정 정보를 확인합니다.", Toast.LENGTH_SHORT).show();
-
-                    Intent i = new Intent(MainActivity.this,SettingActivity.class);
-                    startActivity(i);
                 } else if (id == R.id.logout) {
                     Toast.makeText(context, title + ": 로그아웃 시도중", Toast.LENGTH_SHORT).show();
                 }
@@ -156,8 +152,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
-
                  requestQueue = Volley.newRequestQueue(MainActivity.this);
                  StringRequest request = new StringRequest(
                         Request.Method.POST,
@@ -173,23 +167,16 @@ public class MainActivity extends AppCompatActivity {
                                     JSONObject message = jsonObject.getJSONObject("message");
                                     JSONObject result = message.getJSONObject("result");
                                     String Text = result.getString("translatedText");
-                                    Log.i("DDD", Text);
+                                    Log.i("text", Text);
 
 
                                     translatedthing.setText(Text);
+                                    Transtext transtext = new Transtext(Text);
+                                    transtextArrayList.add(transtext);
+                                    String aa = transtext.getText();
+                                    Log.i("BBB","aa :"+aa);
+                                    d.x = aa;
 
-
-
-                                    SharedPreferences tet = getSharedPreferences("origintet",MODE_PRIVATE);
-                                    String origintext = tet.getString("origintet",null);
-
-
-                                    Log.i("DDD","text :"+origintext);
-
-
-
-                                    post = new Post(origintext,Text);
-                                    dh.addPost(post);
 
 
 
@@ -233,12 +220,13 @@ public class MainActivity extends AppCompatActivity {
                         }
                         params.put("text", translatedkor);
 
+                        Translated translated = new Translated(translatedkor);
+                        translatedArrayList.add(translated);
+                        String AA = translated.getTranslatedkor();
 
 
-                        SharedPreferences tet = getSharedPreferences("origintet",MODE_PRIVATE);
-                        SharedPreferences.Editor editor = tet.edit();
-                        editor.putString("origintet",translatedkor);
-                        editor.apply();
+                            Log.i("BBB", "list :"+translatedArrayList.size());
+                            Log.i("BBB", "AA :"+AA);
 
 
 
@@ -250,6 +238,10 @@ public class MainActivity extends AppCompatActivity {
 
                 };
 
+                Data d2 = copy(d);
+
+                Log.i("DDD","translated :"+ d2.x);
+
 
 
                 // 실제로 네트워크로 API 호출 ( 요청 )
@@ -257,21 +249,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
             }
-
-
 
         });
 
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_toolbar,menu);
-
-        return true;
     }
 
     @Override
@@ -282,16 +265,25 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 //     작동할 내용 넣기  ex) 버튼 누르기
             }
-            case R.id.toolbar_memo:{
-                Intent i = new Intent(MainActivity.this,RecyclerActivity.class);
-                startActivity(i);
-            }
 
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+
+    public Data copy(Data d){
+        Data tmp = new Data();
+        tmp.x = d.x;
+        return tmp;
+
+    }
+
+
+
+    class Data{
+        String x;
+    }
 
 
 
