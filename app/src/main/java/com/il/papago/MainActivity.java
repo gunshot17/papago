@@ -1,18 +1,18 @@
 package com.il.papago;
-
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,7 +21,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -30,22 +29,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
-import com.il.papago.Util.Translated;
-import com.il.papago.Util.Transtext;
-import com.il.papago.api.NetworkClient;
-import com.il.papago.api.PostApi;
+import com.il.papago.data.DatabaseHandler;
 import com.il.papago.model.Post;
-import com.il.papago.model.UserRes;
+import com.il.papago.util.darkModeUtil.ThemeUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,104 +48,93 @@ public class MainActivity extends AppCompatActivity {
     int arrayitem;
 
 
+    Post post;
+    DatabaseHandler dh;
+
     private DrawerLayout mDrawerLayout;
     private Context context = this;
 
 
-    Data d = new Data();
-
-
-
-    ArrayList<Transtext> transtextArrayList = new ArrayList<>();
-    ArrayList<Translated> translatedArrayList = new ArrayList<>();
+    String themeColor;
 
 
     RequestQueue requestQueue;
     String baseUrl = "https://openapi.naver.com/v1/papago/n2mt";
-
     String clientId = BuildConfig.clientId;
     String clientSecret = BuildConfig.clientSecret;
-
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         spinner = findViewById(R.id.spinner);
         translatedkorean = findViewById(R.id.translatedkorean);
         translatedthing = findViewById(R.id.translatedthing);
         button = findViewById(R.id.button);
 
+        dh = new DatabaseHandler(MainActivity.this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayShowCustomEnabled(true); // 커스텀 가능하게 라는데 작동 확인해야됨 12.03
         actionBar.setDisplayShowTitleEnabled(false); // 기존 title 지우기
         actionBar.setDisplayHomeAsUpEnabled(true); //  버튼 만들기
         actionBar.setHomeAsUpIndicator(R.drawable.hamburger);
 
 
+        themeColor = ThemeUtil.modLoad(getApplicationContext());
+        ThemeUtil.applyTheme(themeColor);
 
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-
         ArrayAdapter languageAdapter = ArrayAdapter.createFromResource(this, R.array.translate, android.R.layout.simple_spinner_dropdown_item);
-
         languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(languageAdapter);
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 menuItem.setChecked(true);
                 mDrawerLayout.closeDrawers();
-
                 int id = menuItem.getItemId();
                 String title = menuItem.getTitle().toString();
-
                 if (id == R.id.login) {
                     Toast.makeText(context, title + ": 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
-
-                    Intent i = new Intent(MainActivity.this,LoginActivity.class);
+                    Intent i = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(i);
                 } else if (id == R.id.setting) {
                     Toast.makeText(context, title + ": 설정 정보를 확인합니다.", Toast.LENGTH_SHORT).show();
+
+                    Intent i = new Intent(MainActivity.this, SettingActivity.class);
+                    startActivity(i);
                 } else if (id == R.id.logout) {
                     Toast.makeText(context, title + ": 로그아웃 시도중", Toast.LENGTH_SHORT).show();
                 }
-
                 return true;
             }
         });
-
-
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 arrayitem = ((int) parent.getItemIdAtPosition(position));
-
                 Log.i("AAA", " " + arrayitem);
-
-
             } //이 오버라이드 메소드에서 position은 몇번째 값이 클릭됬는지 알 수 있습니다.
-            //getItemAtPosition(position)를 통해서 해당 값을 받아올수있습니다.
 
+            //getItemAtPosition(position)를 통해서 해당 값을 받아올수있습니다.
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                 requestQueue = Volley.newRequestQueue(MainActivity.this);
-                 StringRequest request = new StringRequest(
+
+                requestQueue = Volley.newRequestQueue(MainActivity.this);
+                StringRequest request = new StringRequest(
                         Request.Method.POST,
                         baseUrl,
                         new Response.Listener<String>() {
@@ -161,23 +142,25 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(String response) {
                                 Log.i("AAA", response);
                                 try {
-
-
                                     JSONObject jsonObject = new JSONObject(response);
                                     JSONObject message = jsonObject.getJSONObject("message");
                                     JSONObject result = message.getJSONObject("result");
                                     String Text = result.getString("translatedText");
-                                    Log.i("text", Text);
+                                    Log.i("DDD", Text);
 
 
                                     translatedthing.setText(Text);
-                                    Transtext transtext = new Transtext(Text);
-                                    transtextArrayList.add(transtext);
-                                    String aa = transtext.getText();
-                                    Log.i("BBB","aa :"+aa);
-                                    d.x = aa;
 
 
+                                    SharedPreferences tet = getSharedPreferences("origintet", MODE_PRIVATE);
+                                    String origintext = tet.getString("origintet", null);
+
+
+                                    Log.i("DDD", "text :" + origintext);
+
+
+                                    post = new Post(origintext, Text);
+                                    dh.addPost(post);
 
 
                                 } catch (JSONException e) {
@@ -207,8 +190,6 @@ public class MainActivity extends AppCompatActivity {
                         Map<String, String> params = new HashMap<String, String>();
                         String translatedkor = translatedkorean.getText().toString();
                         params.put("source", "ko");
-
-
                         if (arrayitem == 1) {
                             params.put("target", "en");
                         } else if (arrayitem == 2) {
@@ -220,41 +201,37 @@ public class MainActivity extends AppCompatActivity {
                         }
                         params.put("text", translatedkor);
 
-                        Translated translated = new Translated(translatedkor);
-                        translatedArrayList.add(translated);
-                        String AA = translated.getTranslatedkor();
 
-
-                            Log.i("BBB", "list :"+translatedArrayList.size());
-                            Log.i("BBB", "AA :"+AA);
-
-
+                        SharedPreferences tet = getSharedPreferences("origintet", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = tet.edit();
+                        editor.putString("origintet", translatedkor);
+                        editor.apply();
 
 
                         return params;
-
                     }
 
-
                 };
-
-                Data d2 = copy(d);
-
-                Log.i("DDD","translated :"+ d2.x);
-
 
 
                 // 실제로 네트워크로 API 호출 ( 요청 )
                 requestQueue.add(request);
 
 
-
-
             }
+
 
         });
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_toolbar, menu);
+
+        return true;
     }
 
     @Override
@@ -265,28 +242,13 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 //     작동할 내용 넣기  ex) 버튼 누르기
             }
+            case R.id.toolbar_memo: {
+                Intent i = new Intent(MainActivity.this, RecyclerActivity.class);
+                startActivity(i);
+            }
 
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-
-    public Data copy(Data d){
-        Data tmp = new Data();
-        tmp.x = d.x;
-        return tmp;
-
-    }
-
-
-
-    class Data{
-        String x;
-    }
-
-
-
-
-    }
-
+}
