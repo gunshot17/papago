@@ -32,20 +32,24 @@ android {
         buildConfigField("String", "OAUTH_CLIENT_NAME", secureProperties['OAUTH_CLIENT_NAME'])
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
+
 
     // 커스텀 ui? 쓸때 넣어야됨 ( naver로그인)
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    //dataBinding
+    buildFeatures {
+        dataBinding true
+    }
 }
 
+repositories {
+    mavenCentral()
+    google()
+}
 
 
 
@@ -77,10 +81,10 @@ dependencies {
     implementation 'androidx.browser:browser:1.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-
+    // splash 화면용
     implementation 'com.android.volley:volley:1.2.1'
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
 
 
@@ -89,6 +93,9 @@ dependencies {
 
 //스위치 버튼
     implementation 'com.kyleduo.switchbutton:library:2.0.0'
+
+
+
 
 
 }

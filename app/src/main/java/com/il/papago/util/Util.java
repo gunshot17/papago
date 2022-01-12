@@ -11,4 +11,6 @@ public class Util {
     public static final String KEY_ID = "id";
     public static final String KEY_ORIGINTEXT = "origintext";
     public static final String KEY_TEXT = "text";
+
+    public static final String KEY_search = "search";
 }

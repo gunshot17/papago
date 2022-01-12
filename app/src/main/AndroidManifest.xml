@@ -14,37 +14,52 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Dark"
-        android:usesCleartextTraffic="true"
-        >
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
         <activity
             android:name=".SettingActivity"
             android:exported="true" />
-        <activity android:name=".SignUpActivity"
-            android:exported="true"/>
-        <activity android:name=".RecyclerActivity"
-            android:exported="true"/>
-        <activity android:name=".LoginActivity"
-            android:exported="true"/>
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true" />
+<!--        <activity-->
+<!--            android:name=".RecyclerActivity"-->
+<!--            android:exported="true" />-->
+
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true" />
         <activity
             android:name="com.nhn.android.naverlogin.ui.OAuthLoginActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name="com.nhn.android.naverlogin.ui.OAuthLoginInAppBrowserActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name="com.nhn.android.naverlogin.ui.OAuthCustomTabActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+        <activity
+            android:name=".RecyclerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
 
+            <meta-data
+                android:name="android.app.appsearch"
+                android:resource="@menu/search_toolbar"/>
+        </activity>
     </application>
 
 </manifest>

@@ -136,4 +136,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         return count;
     }
+
+    public ArrayList<Post> getSearchedPost(String search) {
+        postArrayList = new ArrayList<>();
+        String Searched = "select * from " + Util.TABLE_NAME + " where " + Util.KEY_ORIGINTEXT +" like "+ " '% " + Util.KEY_search + " %' " + " or "
+                 + Util.KEY_TEXT + " like " +  " '% " + Util.KEY_search + " %' " + " order by " + Util.KEY_ID + " desc";
+
+        db = this.getReadableDatabase(); // 읽는다 > read
+        cursor = db.rawQuery(Searched, null); // 여기의 null > where 가 필요없다는 뜻
+
+        if (cursor.moveToFirst()) {
+            do {
+                // db 에서 가져온다
+                int selectedId = Integer.parseInt(cursor.getString(0));
+                String selectedOriginText = cursor.getString(1);
+                String selectedText = cursor.getString(2);
+
+                Post post = new Post();
+                post.setId(selectedId);
+                post.setOrigintext(selectedOriginText);
+                post.setText(selectedText);
+
+                // 4. 비어있는 ArrayList 에 데이터를 하나씩 추가시킨다.
+                postArrayList.add(post);
+
+            } while (cursor.moveToNext()); // 이걸 다음 데이터가 없을 때까지 계속 반복한다
+        }
+        return postArrayList;
+    }
 }

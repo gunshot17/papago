@@ -6,4 +6,5 @@
         android:id="@+id/toolbar_memo"
         android:title="메모"
         app:showAsAction="ifRoom"/>
+
 </menu>

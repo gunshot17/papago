@@ -4,7 +4,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,8 +32,10 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 import com.il.papago.data.DatabaseHandler;
+
+import com.il.papago.dataBinding.Bio;
+import com.il.papago.databinding.NaviHeaderBinding;
 import com.il.papago.model.Post;
-import com.il.papago.util.darkModeUtil.ThemeUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,12 +44,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+    //databinding
+    private NaviHeaderBinding binding;
+    Bio bio = new Bio();
 
     EditText translatedkorean;
     EditText translatedthing;
     Spinner spinner;
+    Spinner spinner2;
     Button button;
     int arrayitem;
+    int arrayitem2;
 
 
     Post post;
@@ -55,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
     private Context context = this;
 
 
-    String themeColor;
 
 
     RequestQueue requestQueue;
@@ -68,10 +76,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //dataBinding    여기에 조건문 달아서 해야됨 null object 뜸
+        binding = DataBindingUtil.setContentView(this,R.layout.activity_main);
         spinner = findViewById(R.id.spinner);
         translatedkorean = findViewById(R.id.translatedkorean);
         translatedthing = findViewById(R.id.translatedthing);
         button = findViewById(R.id.button);
+        spinner2 = findViewById(R.id.spinner2);
+
+
+//dataBinding
+
+        bio.setName("손님");
+        bio.setEmail(" ");
+        binding.setBio(bio);
+
 
         dh = new DatabaseHandler(MainActivity.this);
 
@@ -85,14 +105,16 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setHomeAsUpIndicator(R.drawable.hamburger);
 
 
-        themeColor = ThemeUtil.modLoad(getApplicationContext());
-        ThemeUtil.applyTheme(themeColor);
-
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ArrayAdapter languageAdapter = ArrayAdapter.createFromResource(this, R.array.translate, android.R.layout.simple_spinner_dropdown_item);
         languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(languageAdapter);
+
+        ArrayAdapter languageAdapter2 = ArrayAdapter.createFromResource(this,R.array.translate2, android.R.layout.simple_spinner_dropdown_item);
+        languageAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner2.setAdapter(languageAdapter2);
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -128,6 +150,21 @@ public class MainActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                arrayitem2 = ((int) parent.getItemIdAtPosition(position));
+                Log.i("AAA", " " + arrayitem2);
+            } //이 오버라이드 메소드에서 position은 몇번째 값이 클릭됬는지 알 수 있습니다.
+
+            //getItemAtPosition(position)를 통해서 해당 값을 받아올수있습니다.
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,16 +226,70 @@ public class MainActivity extends AppCompatActivity {
                     protected Map<String, String> getParams() throws AuthFailureError {
                         Map<String, String> params = new HashMap<String, String>();
                         String translatedkor = translatedkorean.getText().toString();
-                        params.put("source", "ko");
-                        if (arrayitem == 1) {
+
+                        if ( arrayitem == 0 && arrayitem2 == 1 ) {
+                            params.put("source", "ko");
                             params.put("target", "en");
-                        } else if (arrayitem == 2) {
+                        } else if (arrayitem == 0 && arrayitem2 == 2) {
+                            params.put("source", "ko");
                             params.put("target", "ja");
-                        } else if (arrayitem == 3) {
+                        } else if (arrayitem == 0 && arrayitem2 == 3) {
+                            params.put("source", "ko");
                             params.put("target", "zh-TW");
-                        } else if (arrayitem == 4) {
+                        } else if (arrayitem == 0 && arrayitem2 == 4) {
+                            params.put("source", "ko");
                             params.put("target", "zh-CN");
+                        } else if (arrayitem == 1 && arrayitem2 == 0){
+                            params.put("source", "en");
+                            params.put("target", "ko");
+                        }else if (arrayitem == 1 && arrayitem2 == 2){
+                            params.put("source", "en");
+                            params.put("target", "ja");
+                        }else if (arrayitem == 1 && arrayitem2 == 3){
+                            params.put("source", "en");
+                            params.put("target", "zh-TW");
+                        }else if (arrayitem == 1 && arrayitem2 == 4){
+                            params.put("source", "en");
+                            params.put("target", "zh-CN");
+                        }else if (arrayitem == 2 && arrayitem2 == 0){
+                            params.put("source", "ja");
+                            params.put("target", "ko");
+                        }else if (arrayitem == 2 && arrayitem2 == 1){
+                            params.put("source", "ja");
+                            params.put("target", "en");
+                        }else if (arrayitem == 2 && arrayitem2 == 3){
+                            params.put("source", "ja");
+                            params.put("target", "zh-TW");
+                        }else if (arrayitem == 2 && arrayitem2 == 4){
+                            params.put("source", "ja");
+                            params.put("target", "zh-CN");
+                        }else if (arrayitem == 3 && arrayitem2 == 0){
+                            params.put("source", "zh-TW");
+                            params.put("target", "ko");
+                        }else if (arrayitem == 3 && arrayitem2 == 1){
+                            params.put("source", "zh-TW");
+                            params.put("target", "en");
+                        }else if (arrayitem == 3 && arrayitem2 == 2){
+                            params.put("source", "zh-TW");
+                            params.put("target", "ja");
+                        }else if (arrayitem == 3 && arrayitem2 == 4){
+                            params.put("source", "zh-TW");
+                            params.put("target", "zh-CN");
+                        }else if (arrayitem == 4 && arrayitem2 == 0){
+                            params.put("source", "zh-CN");
+                            params.put("target", "ko");
+                        }else if (arrayitem == 4 && arrayitem2 == 1){
+                            params.put("source", "zh-CN");
+                            params.put("target", "en");
+                        }else if (arrayitem == 4 && arrayitem2 == 2){
+                            params.put("source", "zh-CN");
+                            params.put("target", "ja");
+                        }else if (arrayitem == 4 && arrayitem2 == 3){
+                            params.put("source", "zh-CN");
+                            params.put("target", "zh-TW");
                         }
+
+
                         params.put("text", translatedkor);
 
 
@@ -222,6 +313,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         });
+
+
 
 
     }
